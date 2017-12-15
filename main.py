@@ -1,8 +1,8 @@
 import preprocess.Preprocess as DataCleaner
 from MatrixFactorization.VariationalBayes import VBMatrixFactorization
 from MatrixFactorization.ExpectationMaximization import EM_SVD
-from MatrixFactorization.MaximumAPriori import MAP_original
 from MatrixFactorization.PosteriorMaximization import MAP
+from MatrixFactorization.MCMC import GibbsSamplerPMF
 import big_matrix.Matrix as Matrix
 import os
 
@@ -26,30 +26,32 @@ test_cleaned = os.path.join(clean_data_folder, "ua.test.clean")
 users, movies, scores = DataCleaner.build_test_data(test_cleaned)
 R = Matrix.FormRatingMatrix(data_cleaned)
 
-max_iters = 200
-n = 5
+max_iters = 75
+n = 15 # Modify this rank to obtain different factorization
 
-# EM = EM_SVD(R,n)
+EM = EM_SVD(R,n)
 VB = VBMatrixFactorization(R, n)
-# MAP_MF = MAP(R, n)
-MAP_convex = MAP_original(R, n)
+MAP_MF = MAP(R, n)
+Sampler = GibbsSamplerPMF(R, n)
+
+print("Rank: ", n)
+print("EM, VB, MAP, Gibbs")
 
 for it in range(max_iters):
-    logging.warning(["iteration: ", it])
-    # conv = EM.learn_matrix_factorization()
-    # logging.warning(["Convergence: ", conv])
-    # logging.warning(["MSE: ", EM.evaluate(users,movies,scores)])
+    EM.learn_matrix_factorization()
+    EM_mse = EM.evaluate(users, movies, scores)
+    print(EM_mse, end=" ")
 
     # VB.learn_matrix_factorization()
-    # logging.warning(["Convergence: ", VB.check_stopping_condition()])
-    # logging.warning(["MSE: ", VB.evaluate(users,movies,scores)])
+    # VB_mse = VB.evaluate(users, movies, scores)
+    # print(VB_mse,end=" ")
 
     # MAP_MF.learn_matrix_factorization()
-    # logging.warning(["Convergence: ", MAP_MF.check_stopping_condition()])
-    # logging.warning(["Error: ", MAP_MF.evaluate_objective_function()])
-    # logging.warning(["MSE: ", MAP_MF.evaluate(users, movies, scores)])
+    # MAP_mse = MAP_MF.evaluate(users, movies, scores)
+    # print(MAP_mse,end=" ")
 
-    MAP_convex.learn_matrix_factorization()
-    logging.warning(["Convergence: ", MAP_convex.check_stopping_condition()])
-    logging.warning(["Error: ", MAP_convex.evaluate_objective_function()])
-    logging.warning(["MSE: ", MAP_convex.evaluate(users, movies, scores)])
+    # Sampler.learn_matrix_factorization()
+    # Gibbs_mse = Sampler.evaluate(users, movies, scores)
+    # print(Gibbs_mse,end=" ")
+
+    print()

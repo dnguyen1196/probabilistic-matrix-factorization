@@ -21,6 +21,7 @@ class VBMatrixFactorization(object):
         self.rho = numpy.ones([n,], dtype=float) / self.n
         self.sigma = numpy.ones([n,],dtype=float)
         self.tau = 1
+        self.K = 0
         self.rated_movie_by_user = collections.defaultdict(list)
         self.find_ratings_by_movies_user()
 
@@ -36,7 +37,6 @@ class VBMatrixFactorization(object):
 
     # Find the list of rated movies by user as well as rated user by movie
     def find_ratings_by_movies_user(self):
-        self.K = 0
         for user, row in enumerate(self.R):
             for movie, score in enumerate(row):
                 if score:
@@ -81,7 +81,6 @@ class VBMatrixFactorization(object):
             column_sum += numpy.power(self.U[i,:],2)
         self.sigma = 1/(self.I-1)*(diag_sum+column_sum)
 
-    # TODO: figure out what is wrong with update_tau here
     def update_tau(self):
         total = 0.0
         for i in range(self.I):
